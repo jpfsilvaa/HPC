@@ -62,6 +62,12 @@ RUN wget -qO - https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox | ap
         librdmacm1 && \
     rm -rf /var/lib/apt/lists/*
 
+RUN wget https://github.com/openucx/ucx/releases/download/v1.14.0/ucx-1.14.0.tar.gz && \
+    tar -xzf ucx-1.14.0.tar.gz && \
+    cd ucx-1.14.0 && \
+    ./configure --prefix=/usr/local/ucx && \
+    make install
+
 # OpenMPI version 5.0.5
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -77,7 +83,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v5.0/downloads/openmpi-5.0.5.tar.bz2 && \
     mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-5.0.5.tar.bz2 -C /var/tmp -j && \
-    cd /var/tmp/openmpi-5.0.5 &&   ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --with-verbs --without-cuda && \
+    cd /var/tmp/openmpi-5.0.5 &&   ./configure --prefix=/usr/local/openmpi --disable-getpwuid --enable-orterun-prefix-by-default --with-ucx=/usr/local/ucx --with-verbs --without-cuda && \
     make -j$(nproc) && \
     make -j$(nproc) install && \
     rm -rf /var/tmp/openmpi-5.0.5 /var/tmp/openmpi-5.0.5.tar.bz2
