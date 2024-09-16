@@ -3,6 +3,10 @@ from hpccm.building_blocks import gnu, cmake, generic_autotools, openmpi, mlnx_o
 from hpccm.primitives import baseimage, shell, environment
 from hpccm.building_blocks import apt_get, ucx
 
+# hpccm --recipe hpc_benchmark.py --format docker > Dockerfile
+# sudo docker build -t osu-benchmark:latest -f Dockerfile .
+# sudo singularity build osu-benchmark.sif docker-daemon://osu-benchmark:latest 
+
 Stage0 += baseimage(image='ubuntu:22.04', _as='build')
 Stage0 += apt_get(ospackages=['wget', 'make', 'tar', 'git', 
                               'ca-certificates', 'autoconf', 
@@ -19,6 +23,7 @@ Stage0 += shell(commands=[
     'tar -xzf ucx-1.14.0.tar.gz',
     'cd ucx-1.14.0',
     './configure --prefix=/usr/local/ucx',
+    'make',
     'make install',
 ])
 
@@ -32,8 +37,9 @@ Stage0 += shell(commands=[
     'wget http://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-5.6.2.tar.gz',
     'tar zxvf ./osu-micro-benchmarks-5.6.2.tar.gz',
     'cd osu-micro-benchmarks-5.6.2/',
-    './configure CC=mpicc CXX=mpicxx',
-    'make'
+    './configure CC=/usr/local/openmpi/bin/mpicc CXX=/usr/local/openmpi/bin/mpicxx --prefix=/usr/local/osu',
+    'make',
+    'make install'
 ])
 
 Stage0 += environment(variables={
