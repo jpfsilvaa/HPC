@@ -66,6 +66,7 @@ RUN wget https://github.com/openucx/ucx/releases/download/v1.14.0/ucx-1.14.0.tar
     tar -xzf ucx-1.14.0.tar.gz && \
     cd ucx-1.14.0 && \
     ./configure --prefix=/usr/local/ucx && \
+    make && \
     make install
 
 # OpenMPI version 5.0.5
@@ -93,8 +94,9 @@ ENV LD_LIBRARY_PATH=/usr/local/openmpi/lib:$LD_LIBRARY_PATH \
 RUN wget http://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-5.6.2.tar.gz && \
     tar zxvf ./osu-micro-benchmarks-5.6.2.tar.gz && \
     cd osu-micro-benchmarks-5.6.2/ && \
-    ./configure CC=mpicc CXX=mpicxx && \
-    make
+    ./configure CC=/usr/local/openmpi/bin/mpicc CXX=/usr/local/openmpi/bin/mpicxx --prefix=/usr/local/osu && \
+    make && \
+    make install
 
 ENV LD_LIBRARY_PATH=/usr/local/openmpi/lib:$LD_LIBRARY_PATH \
     PATH=/usr/local/openmpi/bin:$PATH
