@@ -1,20 +1,23 @@
 #!/bin/bash
-#PBS -N osu_bw_benchmark             # Nome do job
-#PBS -l nodes=2:ppn=1                # Solicita 2 nós com 1 processador por nó
-#PBS -l walltime=00:10:00            # Tempo máximo de execução
-#PBS -q testes                       # Fila para testes
-#PBS -o /home/lovelace/proj/proj1011/j263792/hpccm_osu_benchmark/output_file.txt  # Arquivo de saída
-#PBS -e /home/lovelace/proj/proj1011/j263792/hpccm_osu_benchmark/error_file.txt   # Arquivo de erro
+#PBS -N osu_bench_joao
+#PBS -l nodes=2:ppn=128
+#PBS -l walltime=00:10:00
+#PBS -q paralela
+#PBS -m abe
+#PBS -o /home/lovelace/proj/proj1011/j263792/hpccm_osu_benchmark/output_file_paralela_8.txt
+#PBS -e /home/lovelace/proj/proj1011/j263792/hpccm_osu_benchmark/error_file_paralela_8.txt
+
+cd $PBS_O_WORKDIR
 
 # Carregar os módulos necessários
 module load openmpi/5.0.5-gcc-12.2.0
 module load sage/container-singularity
 
-# Ativar o InfiniBand via UCX
 export OMPI_MCA_pml=ucx
 export OMPI_MCA_btl_openib_allow_ib=1
+export OMPI_MCA_btl=^vader,tcp,sm,self
 export UCX_NET_DEVICES=mlx5_0:1
+export UCX_TLS=rc,sm,self
+export UCX_RC_RX_QUEUE_LEN=1024
 
-# Executar o benchmark usando a imagem Singularity
-singularity exec /home/lovelace/proj/proj1011/j263792/hpccm_osu_benchmark/osu-benchmark.sif \
-mpirun -np 2 -ppn 1 osu_bw
+mpirun -n 2 -mca pml ucx --mca btl ^vader,tcp,openib,uct -x UCX_NET_DEVICES=mlx5_0:1 singularity exec osu-benchmark.sif /usr/local/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
