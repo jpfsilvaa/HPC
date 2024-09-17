@@ -20,4 +20,5 @@ export UCX_NET_DEVICES=mlx5_0:1
 export UCX_TLS=rc,sm,self
 export UCX_RC_RX_QUEUE_LEN=1024
 
-mpirun -n 2 -mca pml ucx --mca btl ^vader,tcp,openib,uct -x UCX_NET_DEVICES=mlx5_0:1 singularity exec osu-benchmark.sif /usr/local/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
+mpirun -np 2 -map-by ppr:1:node -mca pml ucx --mca btl ^vader,tcp,openib,uct -x UCX_NET_DEVICES=mlx5_0:1 \
+singularity exec osu-benchmark.sif /usr/local/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
